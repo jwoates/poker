@@ -1,0 +1,10 @@
+inherit_from: .rubocop_todo.yml
+AllCops:
+  NewCops: enable
+GlobalVars:
+  AllowedVariables:
+    - $report
+    - $game_count
+    - $player_one_win_count
+    - $player_two_win_count
+

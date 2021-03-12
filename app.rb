@@ -5,44 +5,62 @@ require './lib/card'
 require './lib/hand'
 require './lib/game'
 
+time = Time.now
+SUITS = %w[S,D,C,H].freeze
+$report = []
+$game_count = 0
+$player_one_win_count = 0
+$player_two_win_count = 0
 
-fixture_1 = [
-  {suit: 'c', value: 2},
-  {suit: 'd', value: 3},
-  {suit: 'd', value: 4},
-  {suit: 'h', value: 5},
-  {suit: 'd', value: 6}
-]
-h1 = []
-fixture_1.each do |card|
-  h1 << Card.new(*card.values)
+file = './poker.txt'
+
+def build_hand(cards)
+  card_arr = []
+  cards.each { |c| card_arr << build_card(c) }
+  Hand.new(card_arr)
 end
 
-hand_1 = Hand.new h1
-
-fixture_2 = [
-  {suit: 'd', value: 2},
-  {suit: 'd', value: 2},
-  {suit: 'd', value: 2},
-  {suit: 'h', value: 2},
-  {suit: 'd', value: 9}
-]
-h2 = []
-fixture_2.each do |card|
-  h2 << Card.new(*card.values)
+def build_player_cards(cards)
+  cards.each_slice(5).to_a
 end
 
-hand_2 = Hand.new h2
+def build_card(card)
+  parts = card.split(/|#{SUITS}|/)
+  Card.new(parts.last, parts.first)
+end
 
+# TODO: this is too complex and needs to be refactored
+def build_game(line) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+  hands = build_player_cards(line.split)
+  h1 = build_hand(hands.first)
+  h2 = build_hand(hands.last)
+  game = Game.new([h1, h2])
 
-game = Game.new(hand_1, hand_2)
+  $game_count += 1
+  case game.winner
+  when h1
+    $player_one_win_count += 1
+    report = { winner: :player_one, looser: :player_two, winning_hand: hands.first,
+               loosing_hand: hands.last }
+  when h2
+    $player_two_win_count += 1
+    report = { winner: :player_two, looser: :player_one, winning_hand: hands.last,
+               loosing_hand: hands.first }
+  else
+    raise Error, "should always be a winner in game #{game}"
+  end
+  report[:game_count] = $game_count
+  $report << report
+end
 
-pp('∆ -------------------------------------')
-pp "#{hand_1.clean_name} => #{hand_1.score}"
-pp "#{hand_2.clean_name} => #{hand_2.score}"
-pp '...'
+# read each line of the data in and create a game
+File.readlines(file).each { |line| build_game(line) }
 
-pp game.winner.clean_name
-pp game.looser.clean_name
+$report.each do |line|
+  pp "Round: #{line[:game_count]} - W: #{line[:winner]}, L: #{line[:looser]}, winning hand: #{line[:winning_hand].join(' ')}, loosing_hand: #{line[:loosing_hand].join(' ')}" # rubocop:disable Layout/LineLength
+end
 
-pp('∆ -------------------------------------')
+# output
+pp "Player One win count: #{$player_one_win_count}"
+pp "Player Two win count: #{$player_two_win_count}"
+pp "execuited in #{(Time.now - time) * 1000}ms"

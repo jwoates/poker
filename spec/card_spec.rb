@@ -4,7 +4,7 @@ require './lib/card'
 
 RSpec.describe Card do
   let(:cards) do
-    [{ value: 'A', result: 12 }, { value: 5, result: 3 }, { value: 10, result: 8 },
+    [{ value: 'A', result: 12 }, { value: 5, result: 3 }, { value: 't', result: 8 },
      { value: 'J', result: 9 }, { value: 'q', result: 10 }, { value: 2, result: 0 },
      { value: 3, result: 1 }]
   end

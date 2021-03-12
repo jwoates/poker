@@ -1,54 +1,51 @@
 # frozen_string_literal: true
-
-# [x] Royal Flush: Ten, Jack, Queen, King, Ace, in same suit. // straight-flush, but higher card val
-# [x] Straight Flush: All cards are consecutive values of same suit. // flush + straight
-# [x] Four of a Kind: Four cards of the same value.
-# [x] Full House: Three of a kind and a pair.
-# [x] Flush: All cards of the same suit.
-# [x] Straight: All cards are consecutive values.
-# [x] Three of a Kind: Three cards of the same value.
-# [x] Two Pairs: Two different pairs.
-# [x] One Pair: Two cards of the same value.
-# [x] High Card: Highest value card.
-
 ##
 # takes an array of 5 Cards and scores the hand
 class Hand
-  attr_reader :cards, :hight_card
+  attr_reader :cards, :high_card
 
   TOTAL_CARDS = 5
 
-  # NOTE: no need for a Royal Flush mapping, straigh_flush high card will win
   SCORE_MAPPING = %i[
     straight_flush?
     four_of_a_kind?
     full_house?
     flush?
     straight?
-    three_of_a_kind? 
-    two_pairs? 
-    one_pair? 
+    three_of_a_kind?
+    two_pairs?
+    one_pair?
     high_card?
   ].freeze
 
   def initialize(cards)
     @cards = cards.sort
     @values = @cards.sort.map(&:value)
-    @hight_card = @cards.sort.map(&:score)
+    @high_card = @cards.sort.map(&:score)
     @score = score
   end
 
+  # return hand value from mapping index
   def score
     # NOTE: reverse the index to get a proper score
     SCORE_MAPPING.reverse.index(name)
   end
 
-  # sorting ......................... START HERE .............................
+  # size of largest cluster
+  def secondary_score
+    group_cluster_size
+  end
+
+  # card value from largest cluster
+  def tertiary_score
+    group_cluster_value
+  end
+
   def <=>(other)
-    if name == other.name
-      @hight_card <=> other.hight_card
+    if score_set == other.score_set
+      second_cluster_value <=> other.second_cluster_value
     else
-      score <=> other.score
+      score_set <=> other.score_set
     end
   end
 
@@ -58,13 +55,43 @@ class Hand
     end
   end
 
-  # for testing ....................................................................................
-  def clean_name
-    return name.to_s.delete_suffix('?')
+  def score_set
+    [score, secondary_score, tertiary_score]
   end
-  # for testing ....................................................................................
+
+  def second_cluster_value
+    clusters.sort { |a, b| a[1].size <=> b[1].size }.reverse[1].drop(1).flatten.first.score
+  end
 
   private
+
+  # helpers
+  def group_size(size)
+    clusters.values.any? { |values| values.size == size }
+  end
+
+  def group_cluster(index)
+    # this is rough
+    clusters.sort { |a, b| a[index].size <=> b[index].size }.reverse.first.drop(1)
+  end
+
+  def group_cluster_size
+    group_cluster(1).flatten.size
+  end
+
+  def group_cluster_value
+    group_cluster(1).flatten.first.score
+  end
+
+  def clusters
+    @cards.group_by(&:value)
+  end
+
+  def consecutive
+    @cards.slice_when do |prev, cur|
+      (prev.score + 1) == cur.score
+    end
+  end
 
   # hands
   def high_card?
@@ -101,20 +128,5 @@ class Hand
 
   def straight_flush?
     [straight?, flush?].all?
-  end
-
-  # helpers
-  def group_size(size)
-    clusters.values.any? { |values| values.size == size }
-  end
-
-  def clusters
-    @cards.group_by(&:value)
-  end
-
-  def consecutive
-    @cards.slice_when do |prev, cur|
-      (prev.score + 1) == cur.score
-    end
   end
 end

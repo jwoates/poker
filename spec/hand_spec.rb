@@ -1,18 +1,9 @@
 # frozen_string_literal: true
 
-require './lib/hand'
-require './lib/card'
+require './support/helper'
 require './fixtures/hands'
 
-RSpec.describe Hand do
-  # Card = Struct.new(:suit, :value)
-  #
-  def build_hand(data)
-    cards = []
-    data.each { |card| cards << Card.new(*card.values) }
-    Hand.new cards
-  end
-
+RSpec.describe Hand do  # rubocop:disable Metrics/BlockLength
   # build hands straight_flush..high_card
   HANDS.each do |h|
     let(h[0]) { build_hand(h[1]) }
@@ -47,22 +38,133 @@ RSpec.describe Hand do
         end
       end
     end
+  end
 
-    context 'when same type hands' do
-      let(:high_hand) { build_hand(HANDS[:high_card_9]) }
-      let(:med_hand) { build_hand(HANDS[:high_card_8]) }
-      let(:low_hand) { build_hand(HANDS[:high_card_7]) }
+  describe 'scores same type hands' do  # rubocop:disable Metrics/BlockLength
+    context 'when high card' do
+      let(:high_hand) { build_hand(HANDS[:high_card]) }
+      let(:low_hand) { build_hand(HANDS[:high_card_nine]) }
       let(:collection) do
-        [] << low_hand << high_hand << med_hand
+        [] << high_hand << low_hand
+      end
+      it 'sorts by highest card valuer' do
+        expect(collection.max).to be high_hand
       end
 
-      it 'sorts by highest card' do
-        expect(collection.max).to eq high_hand
+      it 'sorts by lowest card value' do
+        expect(collection.min).to be low_hand
       end
-
-      # it 'sorts by lowest card' do
-      #   expect(collection.min).to eq low_hand
-      # end
     end
+
+    context 'when one pair' do
+      let(:high_hand) { build_hand(HANDS[:one_pair_high]) }
+      let(:low_hand) { build_hand(HANDS[:one_pair]) }
+      let(:collection) do
+        [] << low_hand << high_hand
+      end
+      it 'sorts by highest pair' do
+        expect(collection.max).to be high_hand
+      end
+
+      it 'sorts by lowest pair' do
+        expect(collection.min).to be low_hand
+      end
+    end
+
+    context 'when two_pair' do
+      context 'when highest pair are different' do
+        let(:high_hand) { build_hand(HANDS[:two_pairs_high]) }
+        let(:low_hand) { build_hand(HANDS[:two_pairs]) }
+        let(:collection) do
+          [] << low_hand << high_hand
+        end
+        it 'sorts by highest of the pairs' do
+          expect(collection.max).to be high_hand
+        end
+
+        it 'sorts by lowest of the pairs' do
+          expect(collection.min).to be low_hand
+        end
+      end
+    end
+
+    context 'when highest pair are the same' do
+      let(:high_hand) { build_hand(HANDS[:two_pairs_low_high]) }
+      let(:low_hand) { build_hand(HANDS[:two_pairs_low_low]) }
+      let(:collection) do
+        [] << low_hand << high_hand
+      end
+      it 'sorts by highest of the pairs' do
+        expect(collection.max).to be high_hand
+      end
+
+      it 'sorts by lowest of the pairs' do
+        expect(collection.min).to be low_hand
+      end
+    end
+  end
+end
+
+context 'when three_of_a_kind' do
+  let(:high_hand) { build_hand(HANDS[:three_of_a_kind_high]) }
+  let(:low_hand) { build_hand(HANDS[:three_of_a_kind]) }
+  let(:collection) do
+    [] << low_hand << high_hand
+  end
+  it 'sorts by highest of the tripplets' do
+    expect(collection.max).to be high_hand
+  end
+
+  it 'sorts by lowest of the tripplets' do
+    expect(collection.min).to be low_hand
+  end
+end
+
+context 'when straights' do
+  let(:high_hand) { build_hand(HANDS[:straight_high]) }
+  let(:low_hand) { build_hand(HANDS[:straight]) }
+  let(:collection) do
+    [] << low_hand << high_hand
+  end
+  it 'sorts by highest card in straight' do
+    expect(collection.max).to be high_hand
+  end
+
+  it 'sorts by lowest card in straight' do
+    expect(collection.min).to be low_hand
+  end
+end
+
+context 'when both are flushes' do
+  let(:high_hand) { build_hand(HANDS[:royal_flush]) }
+  let(:low_hand) { build_hand(HANDS[:straight_flush]) }
+
+  let(:collection) do
+    [] << low_hand << high_hand
+  end
+
+  it 'sorts by highest card' do
+    expect(collection.max).to be high_hand
+  end
+
+  it 'sorts by lowest card' do
+    expect(collection.min).to be low_hand
+  end
+end
+
+context 'when both are full houses' do
+  let(:high_hand) { build_hand(HANDS[:full_house_high]) }
+  let(:low_hand) { build_hand(HANDS[:full_house]) }
+
+  let(:collection) do
+    [] << low_hand << high_hand
+  end
+
+  it 'sorts by highest tripplet in full house' do
+    expect(collection.max).to be high_hand
+  end
+
+  it 'sorts by lowest tripplet in full house' do
+    expect(collection.min).to be low_hand
   end
 end
