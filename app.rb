@@ -29,38 +29,32 @@ def build_card(card)
   Card.new(parts.last, parts.first)
 end
 
-# TODO: this is too complex and needs to be refactored
-def build_game(line) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+def build_game(line)
   hands = build_player_cards(line.split)
-  h1 = build_hand(hands.first)
-  h2 = build_hand(hands.last)
-  game = Game.new([h1, h2])
+  played_hands = [
+    { player: 'Player 1', hand: build_hand(hands.first) },
+    { player: 'Player 2', hand: build_hand(hands.last) }
+  ]
 
+  game = Game.new(played_hands)
   $game_count += 1
-  case game.winner
-  when h1
-    $player_one_win_count += 1
-    report = { winner: :player_one, looser: :player_two, winning_hand: hands.first,
-               loosing_hand: hands.last }
-  when h2
-    $player_two_win_count += 1
-    report = { winner: :player_two, looser: :player_one, winning_hand: hands.last,
-               loosing_hand: hands.first }
-  else
-    raise Error, "should always be a winner in game #{game}"
-  end
-  report[:game_count] = $game_count
-  $report << report
+  $report <<  { game_count: $game_count, winner: game.winning_player,
+                looser: game.loosing_player, winning_hand: game.winning_hand,
+                loosing_hand: game.loosing_hand }
 end
 
 # read each line of the data in and create a game
 File.readlines(file).each { |line| build_game(line) }
 
-$report.each do |line|
-  pp "Round: #{line[:game_count]} - W: #{line[:winner]}, L: #{line[:looser]}, winning hand: #{line[:winning_hand].join(' ')}, loosing_hand: #{line[:loosing_hand].join(' ')}" # rubocop:disable Layout/LineLength
+def player_win_count(player)
+  $report.select { |h| h[:winner] == player }
 end
 
 # output
-pp "Player One win count: #{$player_one_win_count}"
-pp "Player Two win count: #{$player_two_win_count}"
-pp "execuited in #{(Time.now - time) * 1000}ms"
+$report.each do |line|
+  puts "Round: #{line[:game_count]} - W: #{line[:winner]}, L: #{line[:looser]}, winning hand: #{line[:winning_hand].format_for_report}, loosing_hand: #{line[:loosing_hand].format_for_report}" # rubocop:disable Layout/LineLength
+end
+
+puts "Player One win count: #{player_win_count('Player 1').count}"
+puts "Player Two win count: #{player_win_count('Player 2').count}"
+puts "execuited in #{((Time.now - time) * 1000).round}ms"
