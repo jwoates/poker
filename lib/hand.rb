@@ -24,7 +24,7 @@ class Hand
     @cards = cards.sort
     @values = @cards.sort.map(&:value)
     @high_card = @cards.sort.map(&:score)
-    @score = score
+    @score = score_set
   end
 
   # return hand value from mapping index
@@ -63,6 +63,10 @@ class Hand
 
   def second_cluster_value
     clusters.sort { |a, b| a[1].size <=> b[1].size }.reverse[1].drop(1).flatten.first.score
+  end
+
+  def format_for_report
+    @cards.map { |c| "#{c.value.upcase}#{c.suit.upcase}" }.join(', ')
   end
 
   private

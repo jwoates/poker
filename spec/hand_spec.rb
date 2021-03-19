@@ -3,7 +3,7 @@
 require './support/helper'
 require './fixtures/hands'
 
-RSpec.describe Hand do  # rubocop:disable Metrics/BlockLength
+RSpec.describe Hand do
   # build hands straight_flush..high_card
   HANDS.each do |h|
     let(h[0]) { build_hand(h[1]) }
@@ -47,7 +47,7 @@ RSpec.describe Hand do  # rubocop:disable Metrics/BlockLength
     end
   end
 
-  describe 'scores same type hands' do  # rubocop:disable Metrics/BlockLength
+  describe 'scores same type hands' do
     context 'when high card' do
       let(:high_hand) { build_hand(HANDS[:high_card]) }
       let(:low_hand) { build_hand(HANDS[:high_card_nine]) }

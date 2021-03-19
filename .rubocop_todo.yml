@@ -24,6 +24,8 @@ Layout/ExtraSpacing:
 # IgnoredMethods: refine
 Metrics/BlockLength:
   Max: 34
+  Exclude:
+    - 'spec/*'
 
 # Offense count: 4
 # Configuration parameters: EnforcedStyle, CheckMethodNames, CheckSymbols, AllowedIdentifiers.
