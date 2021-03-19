@@ -12,6 +12,7 @@ class Hand
     full_house?
     flush?
     straight?
+    ace_low_straight?
     three_of_a_kind?
     two_pairs?
     one_pair?
@@ -122,11 +123,22 @@ class Hand
     consecutive.count == TOTAL_CARDS
   end
 
+  def ace_low_straight?
+    # NOTE: sort will still put Ace at the end
+    return false unless @cards.first.value == :'2' && @cards.last.value == :a
+
+    consecutive.count == 4
+  end
+
   def flush?
     @cards.map(&:suit).uniq.size == 1
   end
 
   def straight_flush?
     [straight?, flush?].all?
+  end
+
+  def ace_low_straight_flush?
+    [ace_low_straight?, flush?].all?
   end
 end

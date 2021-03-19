@@ -10,10 +10,16 @@ RSpec.describe Hand do  # rubocop:disable Metrics/BlockLength
   end
 
   let(:hands) do
-    [{ name: straight_flush, result: 8 }, { name: four_of_a_kind, result: 7 },
-     { name: full_house, result: 6 }, { name: flush, result: 5 }, { name: straight, result: 4 },
-     { name: three_of_a_kind, result: 3 }, { name: two_pairs, result: 2 },
-     { name: one_pair, result: 1 }, { name: high_card, result: 0 }]
+    [{ name: straight_flush, result: 9 }, 
+     { name: four_of_a_kind, result: 8 },
+     { name: full_house, result: 7 }, 
+     { name: flush, result: 6 }, 
+     { name: straight, result: 5 },
+     { name: ace_low_straight, result: 4 },
+     { name: three_of_a_kind, result: 3 }, 
+     { name: two_pairs, result: 2 },
+     { name: one_pair, result: 1 }, 
+     { name: high_card, result: 0 }]
   end
 
   describe 'sorts hands' do
@@ -26,7 +32,7 @@ RSpec.describe Hand do  # rubocop:disable Metrics/BlockLength
       expect(collection.min.score).to eq 1
     end
     it 'sorts highest score last' do
-      expect(collection.max.score).to eq 8
+      expect(collection.max.score).to eq 9
     end
   end
 
@@ -126,6 +132,22 @@ context 'when straights' do
   let(:collection) do
     [] << low_hand << high_hand
   end
+  it 'sorts by highest card in straight' do
+    expect(collection.max).to be high_hand
+  end
+
+  it 'sorts by lowest card in straight' do
+    expect(collection.min).to be low_hand
+  end
+end
+
+context 'when ace low staraight' do
+  let(:high_hand) { build_hand(HANDS[:straight]) }
+  let(:low_hand) { build_hand(HANDS[:ace_low_straight]) }
+  let(:collection) do
+    [] << low_hand << high_hand
+  end
+
   it 'sorts by highest card in straight' do
     expect(collection.max).to be high_hand
   end

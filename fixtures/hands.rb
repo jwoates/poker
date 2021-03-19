@@ -57,6 +57,13 @@ HANDS = {
     { suit: 'd', value: 'J' },
     { suit: 'd', value: 'q' }
   ],
+  ace_low_straight: [
+    { suit: 'd', value: 5 },
+    { suit: 'd', value: 4 },
+    { suit: 'd', value: 3 },
+    { suit: 'h', value: 2 },
+    { suit: 'd', value: 'a' }
+  ],
   three_of_a_kind: [
     { suit: 'd', value: 2 },
     { suit: 'd', value: 2 },
