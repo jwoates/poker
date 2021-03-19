@@ -15,6 +15,13 @@ HANDS = {
     { suit: 'h', value: 9 },
     { suit: 'h', value: 't' }
   ],
+  ace_low_straight_flush: [
+    { suit: 'h', value: 5 },
+    { suit: 'h', value: 4 },
+    { suit: 'h', value: 3 },
+    { suit: 'h', value: 2 },
+    { suit: 'h', value: 'a' }
+  ],
   four_of_a_kind: [
     { suit: 'c', value: 5 },
     { suit: 'd', value: 5 },

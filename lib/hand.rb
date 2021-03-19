@@ -8,6 +8,7 @@ class Hand
 
   SCORE_MAPPING = %i[
     straight_flush?
+    ace_low_straight_flush?
     four_of_a_kind?
     full_house?
     flush?
